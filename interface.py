@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import json
 
-from agent import query_agent, create_agent
+from pandas_agent import PandasAgent
+from agent import query_agent, create_agent, summary_agent
 
 
 def decode_response(response: str) -> dict:
@@ -14,7 +15,6 @@ def decode_response(response: str) -> dict:
     Returns:
         dict: dictionary with response data
     """
-    print("Response from the model: ", response)
     return json.loads(response)
 
 
@@ -58,19 +58,21 @@ st.title("👨‍💻 Chat with your CSV")
 
 st.write("Please upload your CSV file below.")
 
-data = st.file_uploader("Upload a CSV")
+data = st.file_uploader("Upload your CSV file")
 
-query = st.text_area("Insert your query")
+if data is not None:
+    # Read the CSV file into a Pandas DataFrame.
+    df = pd.read_csv(data)
 
-if st.button("Submit Query", type="primary"):
-    # Create an agent from the CSV file.
-    agent = create_agent(data)
+    st.session_state.df = df
+    st.write(st.session_state.df)
 
-    # Query the agent.
-    response = query_agent(agent=agent, query=query)
-
-    # Decode the response.
-    decoded_response = decode_response(response)
-
-    # Write the response to the Streamlit app.
-    write_response(decoded_response)
+    summary= summary_agent(df)
+    st.write(summary)
+    csv_agent = PandasAgent()
+    query = st.text_area("Insert your query")
+    print("My query : ", query)
+    if st.button("Submit Query", type="primary"):
+        result, captured_output = csv_agent.get_agent_response(df, query)
+        cleaned_thoughts = csv_agent.process_agent_thoughts(captured_output)
+        csv_agent.display_agent_thoughts(cleaned_thoughts)
