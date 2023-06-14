@@ -1,21 +1,20 @@
+import os
 import re
 import sys
 from io import StringIO, BytesIO
 import matplotlib.pyplot as plt
 import streamlit as st
-from langchain.callbacks import get_openai_callback
-from streamlit_chat import message
 
 from pandasai import PandasAI
 from pandasai.llm.openai import OpenAI
 
 class PandasAgent :
-        
+    
     def __init__(self):
-        pass
+        self.API_KEY = os.environ["OPENAI_API_KEY"]
 
     def get_agent_response(self, uploaded_file_content, query):
-        llm = OpenAI()
+        llm = OpenAI(temperature=0.0, openai_api_key=self.API_KEY)
         pandas_ai = PandasAI(llm, verbose=True)
         old_stdout = sys.stdout
         sys.stdout = captured_output = StringIO()
@@ -45,3 +44,6 @@ class PandasAgent :
     def display_agent_thoughts(self,cleaned_thoughts):
         with st.expander("Display the agent's thoughts"):
             st.write(cleaned_thoughts)
+
+    def display_agent_response(self, response):
+        st.write(response)
