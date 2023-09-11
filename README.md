@@ -39,4 +39,7 @@ Launch the chat service locally :
 
 #### That's it! The service is now up and running locally. 
 
+## License
+
+This project is licensed under the [MIT License](LICENSE).
 
